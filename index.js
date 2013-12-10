@@ -2,21 +2,33 @@ var http = require("http"),
     request = require("request"),
     port = process.env.PORT || 5000;
 
-function fetchExchangeRate(currency, success) {
+function fetchExchangeRate(success) {
   request.get("http://blockchain.info/ticker", function(error, response, body) {
     if (response.statusCode == 200) {
-      var allRates = JSON.parse(body),
-          rateValues = allRates[currency],
-          rate = rateValues.hasOwnProperty('last') && rateValues.last;
+      var currencies = JSON.parse(body),
+          rates = {};
 
-      success(rate);
+      for (var currency in currencies) {
+        if (currencies.hasOwnProperty(currency)) {
+          var historical = currencies[currency],
+              last = historical.last;
+          rates[currency] = last.toFixed(2);
+        }
+      }
+
+      success(rates);
     }
   });
 }
 
 http.createServer(function(request, response) {
-  fetchExchangeRate("USD", function(rate) {
-    var payload = { item: [{ value: rate, prefix: "$" }] };
+  fetchExchangeRate(function(rates) {
+    var payload = {
+      item: [
+        { value: rates["USD"], prefix: "$" },
+        { value: rates["GBP"], prefix: "£" }
+      ]
+    };
 
     response.writeHead(200, { "Content-Type": "application/json" });
     response.write(JSON.stringify(payload));
