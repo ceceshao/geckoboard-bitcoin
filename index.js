@@ -24,6 +24,7 @@ function fetchExchangeRate(success) {
 http.createServer(function(request, response) {
   fetchExchangeRate(function(rates) {
     var payload = {
+      absolute: true,
       item: [
         { value: rates["USD"], prefix: "$" },
         { value: rates["GBP"], prefix: "£" }
