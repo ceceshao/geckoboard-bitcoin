@@ -1,18 +1,18 @@
 var http = require("http"),
-    request = require("request");
+    request = require("request"),
+    port = process.env.PORT || 5000;
 
 function fetchExchangeRate(currency, success) {
   request.get("http://blockchain.info/ticker", function(error, response, body) {
     if (response.statusCode == 200) {
-      var rates = JSON.parse(body),
-          rate = rates[currency]['15m'];
+      var allRates = JSON.parse(body),
+          rateValues = allRates[currency],
+          rate = rateValues.hasOwnProperty('last') && rateValues.last;
 
       success(rate);
     }
   });
 }
-
-var port = process.env.PORT || 5000;
 
 http.createServer(function(request, response) {
   fetchExchangeRate("USD", function(rate) {
