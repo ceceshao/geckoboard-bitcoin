@@ -12,6 +12,8 @@ function fetchExchangeRate(currency, success) {
   });
 }
 
+var port = process.env.PORT || 5000;
+
 http.createServer(function(request, response) {
   fetchExchangeRate("USD", function(rate) {
     var payload = { item: [{ value: rate, prefix: "$" }] };
@@ -20,4 +22,4 @@ http.createServer(function(request, response) {
     response.write(JSON.stringify(payload));
     response.end();
   });
-}).listen(80);
+}).listen(port);
