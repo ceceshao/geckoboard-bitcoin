@@ -1,14 +1,22 @@
 {
-  "name": "bitcoin-widget",
+  "name": "geckoboard-bitcoin",
   "version": "0.0.1",
-  "description": "Geckoboard widget showing the value of a Bitcoin",
+  "description": "Geckoboard widget showing the current Bitcoin exchange rate",
+  "homepage": "https://github.com/leocassarani/geckoboard-bitcoin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/leocassarani/geckoboard-bitcoin.git"
+  },
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Leo Cassarani",
+  "author": "Leo Cassarani <leo@geckoboard.com>",
   "license": "BSD-2-Clause",
   "dependencies": {
     "request": "~2.29.0"
+  },
+  "engines": {
+    "node": ">=0.10"
   }
 }
