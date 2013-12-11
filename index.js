@@ -1,37 +1,57 @@
 var http = require("http"),
     request = require("request"),
-    port = process.env.PORT || 5000;
+    port = process.env.PORT || 5000,
+    ExchangeRate = function(currency, rates) {
+      this.currency = currency;
+      this.symbol = rates.symbol;
+      this.value = rates.last;
+    };
 
-function fetchExchangeRate(success) {
+function fetchExchangeRate(callback) {
   request.get("http://blockchain.info/ticker", function(error, response, body) {
+    var exchangeRates = {};
+
     if (response.statusCode == 200) {
-      var currencies = JSON.parse(body),
-          rates = {};
+      var currencies = JSON.parse(body);
 
       for (var currency in currencies) {
         if (currencies.hasOwnProperty(currency)) {
-          var historical = currencies[currency],
-              last = historical.last;
-          rates[currency] = last.toFixed(2);
+          var rates = currencies[currency];
+          exchangeRates[currency] = new ExchangeRate(currency, rates);
         }
       }
-
-      success(rates);
     }
+
+    callback(exchangeRates);
   });
 }
 
 http.createServer(function(request, response) {
-  fetchExchangeRate(function(rates) {
-    var payload = {
-      item: [{
-        value: rates["USD"],
-        prefix: "$",
-        text: "£" + rates["GBP"]
-      }]
-    };
+  var path = request.url.split('/'),
+      currency = path[1] || "USD";
 
-    response.writeHead(200, { "Content-Type": "application/json" });
+  fetchExchangeRate(function(rates) {
+    var payload,
+        statusCode;
+
+    if (rates.hasOwnProperty(currency)) {
+      var rate = rates[currency];
+
+      payload = {
+        item: [{
+          value: rate.value,
+          prefix: rate.symbol
+        }]
+      };
+
+      statusCode = 200;
+    }
+    else {
+      payload = { error: "Currency not found: " + currency };
+      statusCode = 404;
+    }
+
+    response.writeHead(statusCode, { "Content-Type": "application/json" });
     response.write(JSON.stringify(payload));
     response.end();
   });
