@@ -28,7 +28,7 @@ function fetchExchangeRate(callback) {
 
 http.createServer(function(request, response) {
   var path = request.url.split('/'),
-      currency = path[1] || "USD";
+      currency = path[1].toUpperCase() || "USD";
 
   fetchExchangeRate(function(rates) {
     var payload,
