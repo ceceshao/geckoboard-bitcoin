@@ -4,7 +4,8 @@ var http = require("http"),
     ExchangeRate = function(currency, rates) {
       this.currency = currency;
       this.symbol = rates.symbol;
-      this.value = rates.last;
+      this.currentValue = rates.last;
+      this.yesterdayValue = rates['24h'];
     };
 
 function fetchExchangeRate(callback) {
@@ -26,6 +27,25 @@ function fetchExchangeRate(callback) {
   });
 }
 
+function numberWidgetItem(value, prefix) {
+  return {
+    value: value,
+    prefix: prefix
+  };
+}
+
+function numberWidgetPayload(rate) {
+  var current = numberWidgetItem(rate.currentValue, rate.symbol),
+      item = [current];
+
+  if (typeof rate.yesterdayValue !== "undefined") {
+    var historical = numberWidgetItem(rate.yesterdayValue, rate.symbol);
+    item.push(historical);
+  }
+
+  return { item: item };
+}
+
 http.createServer(function(request, response) {
   var path = request.url.split('/'),
       currency = path[1].toUpperCase() || "USD";
@@ -36,14 +56,7 @@ http.createServer(function(request, response) {
 
     if (rates.hasOwnProperty(currency)) {
       var rate = rates[currency];
-
-      payload = {
-        item: [{
-          value: rate.value,
-          prefix: rate.symbol
-        }]
-      };
-
+      payload = numberWidgetPayload(rate);
       statusCode = 200;
     }
     else {
