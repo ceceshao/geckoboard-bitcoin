@@ -4,8 +4,8 @@ var http = require("http"),
     ExchangeRate = function(currency, rates) {
       this.currency = currency;
       this.symbol = rates.symbol;
-      this.currentValue = rates.last;
-      this.yesterdayValue = rates['24h'];
+      this.currentValue = rates.last && rates.last.toFixed(2);
+      this.yesterdayValue = rates['24h'] && rates['24h'].toFixed(2);
     };
 
 function fetchExchangeRate(callback) {
